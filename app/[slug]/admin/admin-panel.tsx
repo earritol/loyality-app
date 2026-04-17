@@ -49,6 +49,7 @@ export function AdminPanel({ business }: { business: Business }) {
   }
 
   async function handleQRScan({ userId }: { userId: string }) {
+    if (loading) return
     setShowScanner(false)
     await recordVisit(userId)
   }
