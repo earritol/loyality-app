@@ -12,7 +12,7 @@ function isAuthRoute(pathname: string): boolean {
   return AUTH_PATHS.includes(pathname)
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -24,7 +24,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           )
           supabaseResponse = NextResponse.next({ request })
@@ -41,7 +41,6 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Redirect unauthenticated users away from protected routes
-  // Route groups like (protected) are NOT included in the URL path
   const isProtected = isProtectedRoute(request.nextUrl.pathname)
 
   if (!user && isProtected) {
@@ -62,13 +61,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization)
-     * - favicon.ico
-     * - public folder assets (svg, png, jpg, etc.)
-     */
     '/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
