@@ -14,7 +14,7 @@ export default async function BusinessAdminPage({
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/login')
+    redirect('/entrar')
   }
 
   const business = await getBusinessBySlug(slug)

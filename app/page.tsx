@@ -2,24 +2,26 @@ import Link from 'next/link'
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="text-center max-w-md">
-        <h1 className="text-4xl font-bold text-gray-900">Loyalty App</h1>
-        <p className="mt-3 text-gray-500">
-          Earn rewards at your favorite local businesses. Track your visits and redeem perks.
+    <div className="min-h-screen bg-gana-bg flex items-center justify-center px-4">
+      <div className="text-center max-w-sm">
+        <span className="text-5xl">🎁</span>
+        <h1 className="mt-4 text-4xl font-bold text-gana-text">GANA</h1>
+        <p className="mt-1 text-sm font-semibold text-gana-green">GanaMás Club</p>
+        <p className="mt-4 text-gana-muted">
+          Gana recompensas en tus negocios locales favoritos. Registra visitas, canjea premios.
         </p>
         <div className="mt-8 flex flex-col gap-3">
           <Link
-            href="/login"
-            className="inline-block rounded-md bg-blue-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            href="/entrar"
+            className="inline-block w-full rounded-xl bg-gana-green px-6 py-3 text-sm font-semibold text-white hover:bg-gana-green-dark transition-colors"
           >
-            Get Started
+            Comenzar
           </Link>
           <Link
-            href="/login"
-            className="text-sm text-gray-500 hover:text-gray-700"
+            href="/entrar"
+            className="text-sm text-gana-muted hover:text-gana-text transition-colors"
           >
-            Already have an account? Sign in
+            ¿Ya tienes cuenta? Inicia sesión
           </Link>
         </div>
       </div>

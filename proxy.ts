@@ -1,8 +1,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const PROTECTED_PATHS = ['/dashboard', '/profile', '/business', '/ticket']
-const AUTH_PATHS = ['/', '/login', '/verify']
+const PROTECTED_PATHS = ['/inicio', '/perfil', '/local', '/ticket']
+const AUTH_PATHS = ['/', '/entrar', '/verificar']
 
 function isProtectedRoute(pathname: string): boolean {
   return PROTECTED_PATHS.some((path) => pathname.startsWith(path))
@@ -45,14 +45,14 @@ export async function proxy(request: NextRequest) {
 
   if (!user && isProtected) {
     const url = request.nextUrl.clone()
-    url.pathname = '/login'
+    url.pathname = '/entrar'
     return NextResponse.redirect(url)
   }
 
   // Redirect authenticated users away from auth/landing pages to dashboard
   if (user && isAuthRoute(request.nextUrl.pathname)) {
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
+    url.pathname = '/inicio'
     return NextResponse.redirect(url)
   }
 

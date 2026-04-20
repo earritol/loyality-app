@@ -1,33 +1,25 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+})
 
 export const metadata: Metadata = {
-  title: "Loyalty App",
-  description: "Local loyalty platform for small businesses. Track visits, earn rewards.",
-};
+  title: "GANA — GanaMás Club",
+  description: "Gana recompensas en tus negocios locales favoritos. Registra visitas, canjea premios.",
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="es" className={`${inter.variable} h-full antialiased`} style={{ colorScheme: 'light' }}>
+      <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
-  );
+  )
 }

@@ -43,6 +43,6 @@ export async function recordVisitForBusiness(
     return { success: false, error: error.message }
   }
 
-  revalidatePath('/dashboard')
+  revalidatePath('/inicio')
   return { success: true }
 }
