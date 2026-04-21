@@ -12,7 +12,7 @@ export async function recordVisitForBusiness(
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    return { success: false, error: 'Unauthorized' }
+    return { success: false, error: 'No autenticado' }
   }
 
   const { data: admin } = await supabase
@@ -23,7 +23,7 @@ export async function recordVisitForBusiness(
     .single()
 
   if (!admin) {
-    return { success: false, error: 'Not allowed' }
+    return { success: false, error: 'No autorizado' }
   }
   
   const { error } = await supabase.from('visits').insert({
@@ -37,7 +37,7 @@ export async function recordVisitForBusiness(
     if (error.code === '23505') {
       return {
         success: false,
-        error: "This customer already has a visit recorded today.",
+        error: 'Este cliente ya registró su visita hoy. Puedes continuar con el canje si tiene recompensas disponibles.',
       }
     }
     return { success: false, error: error.message }

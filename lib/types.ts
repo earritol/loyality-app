@@ -59,9 +59,52 @@ export type Reward = {
 export type Redemption = {
   id: string
   user_id: string
+  business_id: string
   reward_id: string
-  status: 'pending' | 'redeemed'
+  visits_used: number
+  redeemed_by: string | null
+  /** @deprecated Maintained for backward compatibility only. Do NOT use in new code. */
+  status?: 'pending' | 'redeemed'
   created_at: string
+}
+
+export type LoyaltyStats = {
+  totalVisits: number
+  usedVisits: number
+  availableVisits: number
+}
+
+export type DashboardMetrics = {
+  visitsToday: number
+  totalVisits: number
+  uniqueCustomers: number
+  totalRedemptions: number
+  activeRewards: number
+  visitsThisWeek: number
+  visitsThisMonth: number
+  topCustomers: Array<{ name: string; visits: number }>
+}
+
+export type RecentActivity = {
+  recentVisits: Array<{
+    id: string
+    userName: string
+    method: string
+    createdAt: string
+  }>
+  recentRedemptions: Array<{
+    id: string
+    userName: string
+    rewardName: string
+    visitsUsed: number
+    createdAt: string
+  }>
+}
+
+export type ClassifiedReward = {
+  reward: Reward
+  redeemable: boolean
+  visitsNeeded: number
 }
 
 export type Ticket = {

@@ -1,6 +1,9 @@
 import { getBusinessBySlug } from '@/lib/actions/business'
+import { getAdminDashboardData } from '@/lib/actions/dashboard'
 import { Card } from '@/components/ui/card'
 import { BusinessLogo } from '@/components/ui/business-logo'
+import { MetricsGrid } from '@/components/admin/metrics-grid'
+import { RecentActivitySection } from '@/components/admin/recent-activity'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -13,6 +16,8 @@ export default async function AdminDashboardPage({
   const business = await getBusinessBySlug(slug)
   if (!business) notFound()
 
+  const { metrics, activity } = await getAdminDashboardData(business.id)
+
   return (
     <div className="min-h-screen bg-gana-bg">
       <div className="max-w-2xl mx-auto px-4 py-8">
@@ -24,44 +29,66 @@ export default async function AdminDashboardPage({
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Helper text */}
+        <p className="mt-4 text-xs text-gana-muted">
+          Cada visita registrada acerca a tus clientes a una recompensa. Registra visitas para aumentar la lealtad.
+        </p>
+
+        {/* Quick links */}
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Link href={`/${slug}/admin/registrar`}>
-            <Card className="hover:border-gana-green/30 transition-colors cursor-pointer">
+            <Card className="hover:border-gana-green/30 transition-colors cursor-pointer text-center py-4">
               <span className="text-2xl">📷</span>
-              <p className="mt-2 font-semibold text-gana-text">Registrar visita</p>
-              <p className="text-xs text-gana-muted mt-1">Escanea QR o registra manualmente</p>
+              <p className="mt-1 text-sm font-semibold text-gana-text">Registrar visita</p>
             </Card>
           </Link>
-
           <Link href={`/${slug}/admin/premios`}>
-            <Card className="hover:border-gana-green/30 transition-colors cursor-pointer">
+            <Card className="hover:border-gana-green/30 transition-colors cursor-pointer text-center py-4">
               <span className="text-2xl">🎁</span>
-              <p className="mt-2 font-semibold text-gana-text">Premios</p>
-              <p className="text-xs text-gana-muted mt-1">Configura recompensas para tus clientes</p>
+              <p className="mt-1 text-sm font-semibold text-gana-text">Premios</p>
             </Card>
           </Link>
-
           <Link href={`/${slug}/admin/configurar`}>
-            <Card className="hover:border-gana-green/30 transition-colors cursor-pointer">
+            <Card className="hover:border-gana-green/30 transition-colors cursor-pointer text-center py-4">
               <span className="text-2xl">⚙️</span>
-              <p className="mt-2 font-semibold text-gana-text">Configurar negocio</p>
-              <p className="text-xs text-gana-muted mt-1">Nombre, descripción y logo</p>
+              <p className="mt-1 text-sm font-semibold text-gana-text">Configurar</p>
             </Card>
           </Link>
         </div>
 
-        {/* Placeholder para métricas futuras */}
+        {/* Metrics */}
         <div className="mt-8">
-          <h2 className="text-lg font-bold text-gana-text">Resumen</h2>
-          <div className="mt-4 grid grid-cols-2 gap-4">
-            <Card className="text-center">
-              <p className="text-3xl font-bold text-gana-green">—</p>
-              <p className="text-xs text-gana-muted mt-1">Visitas hoy</p>
-            </Card>
-            <Card className="text-center">
-              <p className="text-3xl font-bold text-gana-green">—</p>
-              <p className="text-xs text-gana-muted mt-1">Clientes totales</p>
-            </Card>
+          <h2 className="text-lg font-bold text-gana-text">Métricas</h2>
+          <div className="mt-3">
+            <MetricsGrid metrics={metrics} />
+          </div>
+        </div>
+
+        {/* Top customers */}
+        <div className="mt-8">
+          <h2 className="text-lg font-bold text-gana-text">Top clientes</h2>
+          {metrics.topCustomers.length > 0 ? (
+            <div className="mt-3 space-y-2">
+              {metrics.topCustomers.map((c, i) => (
+                <Card key={i} className="flex items-center justify-between py-3 px-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg font-bold text-gana-green w-6 text-center">{i + 1}</span>
+                    <p className="text-sm font-medium text-gana-text">{c.name}</p>
+                  </div>
+                  <p className="text-sm font-semibold text-gana-muted">{c.visits} visitas</p>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-gana-muted">Aún no hay clientes registrados.</p>
+          )}
+        </div>
+
+        {/* Recent activity */}
+        <div className="mt-8">
+          <h2 className="text-lg font-bold text-gana-text">Actividad reciente</h2>
+          <div className="mt-3">
+            <RecentActivitySection activity={activity} />
           </div>
         </div>
       </div>
