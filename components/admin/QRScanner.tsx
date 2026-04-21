@@ -82,7 +82,7 @@ export default function QRScanner({ onScan }: Props) {
         },
         (errorMessage) => {
           // Log once to confirm frames are being processed
-          if (!processedRef.current && !scannerRef.current?._loggedFrameCheck) {
+          if (!processedRef.current && !(scannerRef.current as any)?._loggedFrameCheck) {
             console.log('[QRScanner] Frame processing active (no QR found yet)')
             if (scannerRef.current) (scannerRef.current as any)._loggedFrameCheck = true
           }
