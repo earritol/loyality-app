@@ -39,12 +39,12 @@ export default async function DashboardPage() {
       <div className="max-w-lg mx-auto px-4 py-8">
         {/* replaced by Navbar — logo and signOut button removed */}
 
-        <Card className="text-center">
-          <p className="text-xs font-semibold text-gana-muted uppercase tracking-wide">Tu código QR</p>
+        <Card className="text-center" style={{ backgroundColor: '#FFFFFF' }}>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tu código QR</p>
           <div className="mt-3">
             <UserQR userId={user.id} />
           </div>
-          <p className="mt-2 text-xs text-gana-muted">Muéstralo al negocio para registrar tu visita</p>
+          <p className="mt-2 text-xs text-gray-500">Muéstralo al negocio para registrar tu visita</p>
         </Card>
 
         <div className="mt-8">
