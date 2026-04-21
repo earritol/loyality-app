@@ -4,8 +4,6 @@ import { useState } from 'react'
 import { recordVisitForBusiness } from '@/lib/actions/visits'
 import QRScanner from '@/components/admin/QRScanner'
 import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import type { Business } from '@/lib/types'
 
 export function AdminPanel({ business }: { business: Business }) {
@@ -17,16 +15,13 @@ export function AdminPanel({ business }: { business: Business }) {
   async function recordVisit(userId: string) {
     setLoading(true)
     setMessage(null)
-
     const result = await recordVisitForBusiness(userId, business.id)
-
     if (result.success) {
       setMessage({ text: '✓ Visita registrada', type: 'success' })
       setEmail('')
     } else {
       setMessage({ text: result.error ?? 'Algo salió mal.', type: 'error' })
     }
-
     setLoading(false)
   }
 
@@ -35,19 +30,15 @@ export function AdminPanel({ business }: { business: Business }) {
       setMessage({ text: 'Ingresa el email del cliente.', type: 'error' })
       return
     }
-
     setMessage(null)
     setLoading(true)
-
     const res = await fetch(`/api/user-lookup?email=${encodeURIComponent(email)}`)
     const data = await res.json()
-
     if (!data.userId) {
       setMessage({ text: 'Cliente no encontrado. Debe registrarse primero.', type: 'error' })
       setLoading(false)
       return
     }
-
     await recordVisit(data.userId)
   }
 
@@ -61,10 +52,10 @@ export function AdminPanel({ business }: { business: Business }) {
     <div className="min-h-screen bg-gana-bg">
       <div className="max-w-lg mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold text-gana-text">{business.name}</h1>
-        <p className="text-xs font-semibold text-gana-green uppercase tracking-wide">Panel de administración</p>
+        <p className="text-xs font-semibold text-gana-green uppercase tracking-wide">Registrar visita</p>
 
         {message && (
-          <div className={`mt-4 rounded-xl p-3 text-sm font-medium ${message.type === 'success' ? 'bg-gana-green/10 text-gana-green-dark' : 'bg-gana-error/10 text-gana-error'}`}>
+          <div className={`mt-4 rounded-xl p-3 text-sm font-medium ${message.type === 'success' ? 'bg-gana-green/20 text-gana-green' : 'bg-gana-error/20 text-gana-error'}`}>
             {message.text}
           </div>
         )}
@@ -77,14 +68,16 @@ export function AdminPanel({ business }: { business: Business }) {
               {showScanner ? (
                 <div className="space-y-3">
                   <QRScanner onScan={handleQRScan} />
-                  <Button variant="secondary" onClick={() => setShowScanner(false)}>
+                  <button onClick={() => setShowScanner(false)}
+                    className="w-full rounded-xl px-4 py-2.5 text-sm font-semibold text-gana-muted bg-gana-bg border border-gana-border transition-opacity hover:opacity-90">
                     Cancelar
-                  </Button>
+                  </button>
                 </div>
               ) : (
-                <Button onClick={() => { setShowScanner(true); setMessage(null) }} disabled={loading}>
+                <button onClick={() => { setShowScanner(true); setMessage(null) }} disabled={loading}
+                  className="w-full rounded-xl bg-gana-green px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50">
                   Abrir escáner
-                </Button>
+                </button>
               )}
             </div>
           </Card>
@@ -93,15 +86,13 @@ export function AdminPanel({ business }: { business: Business }) {
             <h2 className="font-bold text-gana-text">✏️ Registro manual</h2>
             <p className="mt-1 text-sm text-gana-muted">Ingresa el email del cliente.</p>
             <div className="mt-4 space-y-3">
-              <Input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                 placeholder="cliente@ejemplo.com"
-              />
-              <Button variant="secondary" onClick={handleManualVisit} loading={loading}>
-                Registrar visita
-              </Button>
+                className="block w-full rounded-xl border border-gana-border bg-gana-input-bg text-gana-input-text px-4 py-2.5 text-sm placeholder:text-gana-placeholder focus:outline-none focus:ring-2 focus:ring-gana-green/20" />
+              <button onClick={handleManualVisit} disabled={loading}
+                className="w-full rounded-xl px-4 py-2.5 text-sm font-semibold bg-gana-bg border border-gana-border text-gana-text transition-opacity hover:opacity-90 disabled:opacity-50">
+                {loading ? 'Cargando...' : 'Registrar visita'}
+              </button>
             </div>
           </Card>
         </div>

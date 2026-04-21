@@ -7,6 +7,8 @@ export type ActionResult<T = void> = {
 export type User = {
   id: string
   email: string
+  first_name: string | null
+  last_name: string | null
   phone: string | null
   created_at: string
 }
@@ -16,6 +18,7 @@ export type Business = {
   name: string
   slug: string | null
   description: string | null
+  logo_url: string | null
   created_at: string
 }
 

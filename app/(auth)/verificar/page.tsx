@@ -7,6 +7,7 @@ import { verifyOtp } from '@/lib/actions/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
+import Image from 'next/image'
 import type { ActionResult } from '@/lib/types'
 
 const initialState: ActionResult = { success: false }
@@ -19,6 +20,22 @@ function VerifyForm() {
   return (
     <Card className="w-full max-w-[400px]">
       <div className="text-center mb-6">
+        <Image
+          src="/logo-gana.png"
+          alt="GANA"
+          width={200}
+          height={66}
+          className="mx-auto mb-4 dark:hidden"
+          priority
+        />
+        <Image
+          src="/logo-gana-dark.png"
+          alt="GANA"
+          width={200}
+          height={66}
+          className="mx-auto mb-4 hidden dark:block"
+          priority
+        />
         <h1 className="text-2xl font-bold text-gana-text">Revisa tu email</h1>
         <p className="mt-1 text-sm text-gana-muted">
           Ingresa el código que enviamos a{' '}

@@ -1,6 +1,6 @@
 'use client'
 
-import { QRCodeCanvas } from 'qrcode.react'
+import { QRCodeSVG } from 'qrcode.react'
 
 export function UserQR({ userId }: { userId: string }) {
   const qrData = JSON.stringify({
@@ -10,7 +10,7 @@ export function UserQR({ userId }: { userId: string }) {
 
   return (
     <div className="flex flex-col items-center">
-      <QRCodeCanvas
+      <QRCodeSVG
         value={qrData}
         size={180}
         bgColor="#ffffff"

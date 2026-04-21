@@ -15,8 +15,7 @@ export function Input({ label, error, id, className = '', ...props }: Props) {
       )}
       <input
         id={id}
-        className={`block w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gana-green/20 ${error ? 'border-gana-error' : 'border-gana-border'} ${className}`}
-        style={{ color: '#111827', backgroundColor: '#FFFFFF' }}
+        className={`block w-full rounded-xl border px-4 py-2.5 text-sm bg-gana-input-bg text-gana-input-text placeholder:text-gana-placeholder focus:outline-none focus:ring-2 focus:ring-gana-green/20 ${error ? 'border-gana-error' : 'border-gana-border'} ${className}`}
         {...props}
       />
       {error && <p className="mt-1 text-xs text-gana-error">{error}</p>}

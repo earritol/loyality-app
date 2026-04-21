@@ -5,6 +5,7 @@ import { sendOtp } from '@/lib/actions/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
+import Image from 'next/image'
 import type { ActionResult } from '@/lib/types'
 
 const initialState: ActionResult<{ email: string }> = { success: false }
@@ -16,9 +17,24 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gana-bg flex items-center justify-center px-4">
       <Card className="w-full max-w-[400px]">
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-gana-text">Bienvenido</h1>
-          <p className="mt-1 text-sm text-gana-muted">
-            Ingresa tu email para recibir un código de acceso.
+          <Image
+            src="/logo-gana.png"
+            alt="GANA"
+            width={220}
+            height={73}
+            className="mx-auto dark:hidden"
+            priority
+          />
+          <Image
+            src="/logo-gana-dark.png"
+            alt="GANA"
+            width={220}
+            height={73}
+            className="mx-auto hidden dark:block"
+            priority
+          />
+          <p className="mt-3 text-sm text-gana-muted">
+            Gana recompensas por tus visitas
           </p>
         </div>
         <form action={action} className="space-y-4">

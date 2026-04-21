@@ -1,12 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { signOut } from '@/lib/actions/auth'
 import { UserQR } from '@/components/user-qr'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/ui/empty-state'
-import { Button } from '@/components/ui/button'
+import { BusinessLogo } from '@/components/ui/business-logo'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -16,19 +16,19 @@ export default async function DashboardPage() {
 
   const { data: visits } = await supabase
     .from('visits')
-    .select('business_id, businesses(name, slug)')
+    .select('business_id, businesses(name, slug, logo_url)')
     .eq('user_id', user.id)
 
-  const businessMap = new Map<string, { name: string; slug: string | null; count: number }>()
+  const businessMap = new Map<string, { name: string; slug: string | null; logoUrl: string | null; count: number }>()
 
   for (const visit of visits ?? []) {
-    const biz = visit.businesses as unknown as { name: string; slug: string | null } | null
+    const biz = visit.businesses as unknown as { name: string; slug: string | null; logo_url: string | null } | null
     if (!biz) continue
     const existing = businessMap.get(visit.business_id)
     if (existing) {
       existing.count++
     } else {
-      businessMap.set(visit.business_id, { name: biz.name, slug: biz.slug, count: 1 })
+      businessMap.set(visit.business_id, { name: biz.name, slug: biz.slug, logoUrl: biz.logo_url, count: 1 })
     }
   }
 
@@ -37,19 +37,9 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen bg-gana-bg">
       <div className="max-w-lg mx-auto px-4 py-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gana-text">GANA</h1>
-            <p className="text-xs text-gana-muted">{user.email}</p>
-          </div>
-          <form action={signOut}>
-            <Button variant="ghost" className="w-auto px-3 py-1.5 text-xs">
-              Cerrar sesión
-            </Button>
-          </form>
-        </div>
+        {/* replaced by Navbar — logo and signOut button removed */}
 
-        <Card className="mt-6 text-center">
+        <Card className="text-center">
           <p className="text-xs font-semibold text-gana-muted uppercase tracking-wide">Tu código QR</p>
           <div className="mt-3">
             <UserQR userId={user.id} />
@@ -58,7 +48,10 @@ export default async function DashboardPage() {
         </Card>
 
         <div className="mt-8">
-          <h2 className="text-lg font-bold text-gana-text">Tus visitas</h2>
+          <div className="flex items-center gap-2">
+            <Image src="/icon-star.png" alt="" width={28} height={28} />
+            <h2 className="text-lg font-bold text-gana-text">Tus visitas</h2>
+          </div>
 
           {businessList.length === 0 ? (
             <div className="mt-4">
@@ -72,8 +65,9 @@ export default async function DashboardPage() {
             <div className="mt-4 space-y-3">
               {businessList.map(([id, biz]) => (
                 <Link key={id} href={`/local/${biz.slug ?? id}`}>
-                  <Card className="flex items-center justify-between hover:border-gana-green/30 transition-colors cursor-pointer">
-                    <div>
+                  <Card className="flex items-center gap-3 hover:border-gana-green/30 transition-colors cursor-pointer">
+                    <BusinessLogo logoUrl={biz.logoUrl} name={biz.name} size="sm" />
+                    <div className="flex-1 min-w-0">
                       <p className="font-semibold text-gana-text">{biz.name}</p>
                       <p className="text-xs text-gana-muted">Ver recompensas →</p>
                     </div>

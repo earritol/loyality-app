@@ -1,36 +1,61 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --color-gana-green: #22C55E;
   --color-gana-green-dark: #16A34A;
   --color-gana-yellow: #FACC15;
   --color-gana-yellow-dark: #EAB308;
-  --color-gana-text: #111827;
-  --color-gana-muted: #6B7280;
-  --color-gana-bg: #F9FAFB;
-  --color-gana-card: #FFFFFF;
   --color-gana-error: #EF4444;
   --color-gana-success: #22C55E;
-  --color-gana-border: #E5E7EB;
   --font-sans: var(--font-inter);
+
+  /* Theme-aware colors via CSS vars */
+  --color-gana-text: var(--theme-text);
+  --color-gana-muted: var(--theme-muted);
+  --color-gana-bg: var(--theme-bg);
+  --color-gana-card: var(--theme-card);
+  --color-gana-border: var(--theme-border);
+  --color-gana-input-bg: var(--theme-input-bg);
+  --color-gana-input-text: var(--theme-input-text);
+  --color-gana-placeholder: var(--theme-placeholder);
 }
 
-/* Force light theme — no dark mode for MVP */
-html {
-  color-scheme: light;
+/* Light theme (default) */
+:root {
+  --theme-text: #111827;
+  --theme-muted: #6B7280;
+  --theme-bg: #F9FAFB;
+  --theme-card: #FFFFFF;
+  --theme-border: #E5E7EB;
+  --theme-input-bg: #FFFFFF;
+  --theme-input-text: #111827;
+  --theme-placeholder: #9CA3AF;
+}
+
+/* Dark theme */
+html.dark {
+  --theme-text: #F9FAFB;
+  --theme-muted: #9CA3AF;
+  --theme-bg: #111827;
+  --theme-card: #1F2937;
+  --theme-border: #374151;
+  --theme-input-bg: #111827;
+  --theme-input-text: #F9FAFB;
+  --theme-placeholder: #6B7280;
 }
 
 body {
-  background-color: #F9FAFB;
-  color: #111827;
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
 }
 
-/* Override any dark mode defaults */
 input, textarea, select {
-  color: #111827;
-  background-color: #FFFFFF;
+  color: var(--theme-input-text);
+  background-color: var(--theme-input-bg);
 }
 
 input::placeholder, textarea::placeholder {
-  color: #9CA3AF;
+  color: var(--theme-placeholder);
 }

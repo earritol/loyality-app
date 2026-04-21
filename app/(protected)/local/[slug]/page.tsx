@@ -5,7 +5,9 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ProgressBar } from '@/components/ui/progress-bar'
+import { BusinessLogo } from '@/components/ui/business-logo'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default async function BusinessDetailPage({
   params,
@@ -20,7 +22,7 @@ export default async function BusinessDetailPage({
 
   const { data: business } = await supabase
     .from('businesses')
-    .select('id, name, slug, description')
+    .select('id, name, slug, description, logo_url')
     .eq('slug', slug)
     .single()
 
@@ -66,11 +68,10 @@ export default async function BusinessDetailPage({
   return (
     <div className="min-h-screen bg-gana-bg">
       <div className="max-w-lg mx-auto px-4 py-8">
-        <Link href="/inicio" className="text-sm text-gana-green font-medium hover:underline">
-          ← Volver al inicio
-        </Link>
+        {/* replaced by Navbar — back link removed */}
 
         <div className="mt-4">
+          <BusinessLogo logoUrl={business.logo_url} name={business.name} size="lg" className="mb-3" />
           <h1 className="text-2xl font-bold text-gana-text">{business.name}</h1>
           {business.description && (
             <p className="mt-1 text-sm text-gana-muted">{business.description}</p>
@@ -83,7 +84,10 @@ export default async function BusinessDetailPage({
         </Card>
 
         <div className="mt-8">
-          <h2 className="text-lg font-bold text-gana-text">Recompensas</h2>
+          <div className="flex items-center gap-2">
+            <Image src="/icon-star.png" alt="" width={28} height={28} />
+            <h2 className="text-lg font-bold text-gana-text">Recompensas</h2>
+          </div>
 
           {(rewards ?? []).length === 0 ? (
             <div className="mt-4">
