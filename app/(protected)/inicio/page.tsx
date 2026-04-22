@@ -14,25 +14,44 @@ export default async function DashboardPage() {
 
   if (!user) redirect('/entrar')
 
-  const { data: visits } = await supabase
-    .from('visits')
-    .select('business_id, businesses(name, slug, logo_url)')
-    .eq('user_id', user.id)
+  // Fetch visits and redemptions in parallel
+  const [visitsRes, redemptionsRes] = await Promise.all([
+    supabase
+      .from('visits')
+      .select('business_id, businesses(name, slug, logo_url)')
+      .eq('user_id', user.id),
+    supabase
+      .from('redemptions')
+      .select('business_id, visits_used')
+      .eq('user_id', user.id),
+  ])
 
-  const businessMap = new Map<string, { name: string; slug: string | null; logoUrl: string | null; count: number }>()
+  // Count total visits per business
+  const businessMap = new Map<string, { name: string; slug: string | null; logoUrl: string | null; totalVisits: number }>()
 
-  for (const visit of visits ?? []) {
+  for (const visit of visitsRes.data ?? []) {
     const biz = visit.businesses as unknown as { name: string; slug: string | null; logo_url: string | null } | null
     if (!biz) continue
     const existing = businessMap.get(visit.business_id)
     if (existing) {
-      existing.count++
+      existing.totalVisits++
     } else {
-      businessMap.set(visit.business_id, { name: biz.name, slug: biz.slug, logoUrl: biz.logo_url, count: 1 })
+      businessMap.set(visit.business_id, { name: biz.name, slug: biz.slug, logoUrl: biz.logo_url, totalVisits: 1 })
     }
   }
 
-  const businessList = Array.from(businessMap.entries())
+  // Sum used visits per business
+  const usedMap = new Map<string, number>()
+  for (const r of redemptionsRes.data ?? []) {
+    usedMap.set(r.business_id, (usedMap.get(r.business_id) ?? 0) + (r.visits_used ?? 0))
+  }
+
+  // Build list with available visits
+  const businessList = Array.from(businessMap.entries()).map(([id, biz]) => {
+    const used = usedMap.get(id) ?? 0
+    const available = Math.max(0, biz.totalVisits - used)
+    return { id, ...biz, available }
+  })
 
   return (
     <div className="min-h-screen bg-gana-bg">
@@ -63,8 +82,8 @@ export default async function DashboardPage() {
             </div>
           ) : (
             <div className="mt-4 space-y-3">
-              {businessList.map(([id, biz]) => (
-                <Link key={id} href={`/local/${biz.slug ?? id}`}>
+              {businessList.map((biz) => (
+                <Link key={biz.id} href={`/local/${biz.slug ?? biz.id}`}>
                   <Card className="flex items-center gap-3 hover:border-gana-green/30 transition-colors cursor-pointer">
                     <BusinessLogo logoUrl={biz.logoUrl} name={biz.name} size="sm" />
                     <div className="flex-1 min-w-0">
@@ -72,7 +91,7 @@ export default async function DashboardPage() {
                       <p className="text-xs text-gana-muted">Ver recompensas →</p>
                     </div>
                     <Badge variant="visits">
-                      {biz.count} {biz.count === 1 ? 'visita' : 'visitas'}
+                      {biz.available} {biz.available === 1 ? 'visita' : 'visitas'}
                     </Badge>
                   </Card>
                 </Link>
