@@ -6,7 +6,24 @@ import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/ui/empty-state'
 import { ProgressBar } from '@/components/ui/progress-bar'
 import { BusinessLogo } from '@/components/ui/business-logo'
+import Link from 'next/link'
 import Image from 'next/image'
+
+function getExpirationLabel(expiresAt: string): { text: string; urgent: boolean } | null {
+  const now = new Date()
+  const exp = new Date(expiresAt)
+  const diffMs = exp.getTime() - now.getTime()
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
+
+  if (diffDays <= 0) return { text: 'Expira hoy', urgent: true }
+  if (diffDays === 1) return { text: 'Expira mañana', urgent: true }
+  if (diffDays <= 2) return { text: '⚠️ Expira pronto', urgent: true }
+  return { text: `Expira en ${diffDays} días`, urgent: false }
+}
+
+function formatExpirationDate(expiresAt: string): string {
+  return new Date(expiresAt).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
 
 export default async function BusinessDetailPage({
   params,
@@ -21,7 +38,7 @@ export default async function BusinessDetailPage({
 
   const { data: business } = await supabase
     .from('businesses')
-    .select('id, name, slug, description, logo_url')
+    .select('id, name, slug, description, logo_url, program_name, rules_text, terms_text')
     .eq('slug', slug)
     .single()
 
@@ -33,18 +50,17 @@ export default async function BusinessDetailPage({
     )
   }
 
-  // Dynamic loyalty stats
   const stats = await getUserLoyaltyStats(user.id, business.id)
 
-  // Active rewards
+  // Active rewards — filter expired server-side using Supabase NOW()
   const { data: rewards } = await supabase
     .from('rewards')
-    .select('id, name, description, required_visits')
+    .select('id, name, description, required_visits, expires_at')
     .eq('business_id', business.id)
     .eq('is_active', true)
+    .or('expires_at.is.null,expires_at.gte.now()')
     .order('required_visits', { ascending: true })
 
-  // Redemption history (last 5)
   const { data: redemptionHistory } = await supabase
     .from('redemptions')
     .select('id, created_at, visits_used, rewards(name)')
@@ -93,14 +109,20 @@ export default async function BusinessDetailPage({
               {(rewards ?? []).map((reward) => {
                 const canRedeem = available >= reward.required_visits
                 const remaining = reward.required_visits - available
+                const expLabel = reward.expires_at ? getExpirationLabel(reward.expires_at) : null
 
                 return (
                   <Card key={reward.id} className={canRedeem ? 'border-gana-green/30' : ''}>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-semibold text-gana-text">{reward.name}</p>
                           {canRedeem && <Badge variant="visits">🎉 Listo</Badge>}
+                          {expLabel && (
+                            <span className={`text-xs ${expLabel.urgent ? 'text-gana-error font-medium' : 'text-gana-muted'}`}>
+                              {expLabel.text}
+                            </span>
+                          )}
                         </div>
                         {reward.description && (
                           <p className="mt-0.5 text-sm text-gana-muted">{reward.description}</p>
@@ -108,11 +130,14 @@ export default async function BusinessDetailPage({
                         <p className="text-xs text-gana-muted mt-1">
                           {available} / {reward.required_visits} visitas
                         </p>
+                        {reward.expires_at && (
+                          <p className="text-xs text-gana-muted">
+                            Válido hasta {formatExpirationDate(reward.expires_at)}
+                          </p>
+                        )}
                       </div>
                       {!canRedeem && (
-                        <Badge variant="locked">
-                          Faltan {remaining}
-                        </Badge>
+                        <Badge variant="locked">Faltan {remaining}</Badge>
                       )}
                     </div>
                     <div className="mt-3">
@@ -134,6 +159,25 @@ export default async function BusinessDetailPage({
           )}
         </div>
 
+        {/* Rules section */}
+        {business.rules_text && (
+          <div className="mt-8">
+            <h2 className="text-lg font-bold text-gana-text">Reglas del programa</h2>
+            <Card className="mt-3">
+              <p className="text-sm text-gana-text whitespace-pre-line">{business.rules_text}</p>
+            </Card>
+          </div>
+        )}
+
+        {/* Terms link */}
+        {business.terms_text && (
+          <div className="mt-4 text-center">
+            <Link href={`/local/${slug}/terminos`} className="text-sm text-gana-green hover:underline">
+              Ver términos y condiciones
+            </Link>
+          </div>
+        )}
+
         {/* Redemption history */}
         <div className="mt-8">
           <h2 className="text-lg font-bold text-gana-text">Historial de recompensas</h2>
@@ -145,9 +189,7 @@ export default async function BusinessDetailPage({
             <div className="mt-4 space-y-2">
               {(redemptionHistory ?? []).map((r) => {
                 const rw = r.rewards as unknown as { name: string } | null
-                const date = new Date(r.created_at).toLocaleDateString('es-MX', {
-                  day: 'numeric', month: 'long',
-                })
+                const date = new Date(r.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'long' })
                 return (
                   <Card key={r.id} className="flex items-center justify-between py-3 px-4">
                     <div>

@@ -19,6 +19,10 @@ export type Business = {
   slug: string | null
   description: string | null
   logo_url: string | null
+  program_name: string | null
+  rules_text: string | null
+  terms_text: string | null
+  max_visits_per_day: number
   created_at: string
 }
 
@@ -26,6 +30,7 @@ export type BusinessAdmin = {
   id: string
   business_id: string
   user_id: string
+  role: 'owner' | 'staff'
   created_at: string
 }
 
@@ -53,6 +58,8 @@ export type Reward = {
   description: string | null
   required_visits: number
   is_active: boolean
+  expires_at: string | null
+  max_redemptions_per_user: number | null
   created_at: string
 }
 
@@ -105,6 +112,16 @@ export type ClassifiedReward = {
   reward: Reward
   redeemable: boolean
   visitsNeeded: number
+}
+
+export type TeamMember = {
+  id: string
+  userId: string
+  email: string
+  firstName: string | null
+  lastName: string | null
+  role: 'owner' | 'staff'
+  createdAt: string
 }
 
 export type Ticket = {

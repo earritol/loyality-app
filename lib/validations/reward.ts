@@ -20,6 +20,21 @@ export const rewardFormSchema = z.object({
     .number({ error: 'Debe ser un número' })
     .int('Debe ser un número entero')
     .positive('Debe ser mayor a 0'),
+  expiresAt: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((v) => (v?.trim() === '' ? null : v?.trim() ?? null))
+    .refine(
+      (v) => v === null || v === undefined || new Date(v) > new Date(),
+      { message: 'La fecha debe ser futura' }
+    ),
+  maxRedemptionsPerUser: z
+    .number()
+    .int('Debe ser un número entero')
+    .positive('Debe ser mayor a 0')
+    .nullable()
+    .optional(),
 })
 
 // Admin — update existing reward

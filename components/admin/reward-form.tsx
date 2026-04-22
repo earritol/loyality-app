@@ -24,6 +24,8 @@ export function RewardForm({ businessId, slug, reward, onClose }: Props) {
   const [name, setName] = useState(reward?.name ?? '')
   const [description, setDescription] = useState(reward?.description ?? '')
   const [visits, setVisits] = useState(reward?.required_visits?.toString() ?? '')
+  const [expiresAt, setExpiresAt] = useState(reward?.expires_at ? reward.expires_at.split('T')[0] : '')
+  const [maxRedemptions, setMaxRedemptions] = useState(reward?.max_redemptions_per_user?.toString() ?? '')
 
   // Close on success
   if (state.success) {
@@ -62,6 +64,13 @@ export function RewardForm({ businessId, slug, reward, onClose }: Props) {
 
         <Input label="Visitas requeridas" id="requiredVisits" name="requiredVisits" type="number" min="1" step="1"
           value={visits} onChange={(e) => setVisits(e.target.value)} placeholder="Ej: 10" />
+
+        <Input label="Fecha de expiración (opcional)" id="expiresAt" name="expiresAt" type="date"
+          value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} />
+
+        <Input label="Máximo de canjes por usuario (opcional)" id="maxRedemptionsPerUser" name="maxRedemptionsPerUser"
+          type="number" min="1" step="1" value={maxRedemptions}
+          onChange={(e) => setMaxRedemptions(e.target.value)} placeholder="Sin límite" />
 
         {state.error && <p className="text-xs text-gana-error">{state.error}</p>}
 

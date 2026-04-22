@@ -28,7 +28,7 @@ export async function createAdminRedemption(
 
   // Verify admin
   const isAdmin = await checkIsBusinessAdmin(user.id, businessId)
-  if (!isAdmin) return { success: false, error: 'No autorizado' }
+  if (!isAdmin) return { success: false, error: 'No tienes permisos para realizar esta acción' }
 
   // Fetch reward to get name (for response) and validate it belongs to business + is active
   const { data: reward } = await supabase
@@ -63,6 +63,12 @@ export async function createAdminRedemption(
     }
     if (msg.includes('INVALID_REWARD')) {
       return { success: false, error: 'Recompensa no encontrada o inactiva.' }
+    }
+    if (msg.includes('REWARD_EXPIRED')) {
+      return { success: false, error: 'Esta recompensa ha expirado.' }
+    }
+    if (msg.includes('REDEMPTION_LIMIT_REACHED')) {
+      return { success: false, error: 'Este cliente ya alcanzó el límite de canjes para esta recompensa.' }
     }
     console.error('createAdminRedemption error', { userId, businessId, rewardId, error })
     return { success: false, error: 'Error al procesar el canje.' }

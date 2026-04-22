@@ -70,6 +70,8 @@ export async function createReward(
     name: formData.get('name') as string,
     description: formData.get('description') as string | null,
     requiredVisits: Number(formData.get('requiredVisits')),
+    expiresAt: formData.get('expiresAt') as string | null,
+    maxRedemptionsPerUser: formData.get('maxRedemptionsPerUser') ? Number(formData.get('maxRedemptionsPerUser')) : null,
   }
 
   const parsed = rewardFormSchema.safeParse(raw)
@@ -82,13 +84,15 @@ export async function createReward(
   if (!user) return { success: false, error: 'No autenticado' }
 
   const isAdmin = await checkIsBusinessAdmin(user.id, businessId)
-  if (!isAdmin) return { success: false, error: 'No autorizado' }
+  if (!isAdmin) return { success: false, error: 'No tienes permisos para realizar esta acción' }
 
   const { error } = await supabase.from('rewards').insert({
     business_id: businessId,
     name: parsed.data.name,
     description: parsed.data.description,
     required_visits: parsed.data.requiredVisits,
+    expires_at: parsed.data.expiresAt,
+    max_redemptions_per_user: parsed.data.maxRedemptionsPerUser ?? null,
     is_active: true,
   })
 
@@ -111,6 +115,8 @@ export async function updateReward(
     name: formData.get('name') as string,
     description: formData.get('description') as string | null,
     requiredVisits: Number(formData.get('requiredVisits')),
+    expiresAt: formData.get('expiresAt') as string | null,
+    maxRedemptionsPerUser: formData.get('maxRedemptionsPerUser') ? Number(formData.get('maxRedemptionsPerUser')) : null,
   }
 
   const parsed = updateRewardSchema.safeParse(raw)
@@ -123,13 +129,15 @@ export async function updateReward(
   if (!user) return { success: false, error: 'No autenticado' }
 
   const isAdmin = await checkIsBusinessAdmin(user.id, businessId)
-  if (!isAdmin) return { success: false, error: 'No autorizado' }
+  if (!isAdmin) return { success: false, error: 'No tienes permisos para realizar esta acción' }
 
   const { error } = await supabase.from('rewards')
     .update({
       name: parsed.data.name,
       description: parsed.data.description,
       required_visits: parsed.data.requiredVisits,
+      expires_at: parsed.data.expiresAt,
+      max_redemptions_per_user: parsed.data.maxRedemptionsPerUser ?? null,
     })
     .eq('id', parsed.data.rewardId)
     .eq('business_id', businessId)
@@ -160,7 +168,7 @@ export async function toggleRewardStatus(
   if (!user) return { success: false, error: 'No autenticado' }
 
   const isAdmin = await checkIsBusinessAdmin(user.id, businessId)
-  if (!isAdmin) return { success: false, error: 'No autorizado' }
+  if (!isAdmin) return { success: false, error: 'No tienes permisos para realizar esta acción' }
 
   const { data: reward } = await supabase
     .from('rewards')

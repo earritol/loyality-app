@@ -59,6 +59,7 @@ export async function verifyOtp(
     )
 
     if (upsertError) {
+      console.error('User upsert error:', upsertError)
       return {
         success: false,
         error: 'Cuenta verificada pero no se pudo crear el perfil. Intenta de nuevo.',
