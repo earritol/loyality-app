@@ -76,14 +76,9 @@ export async function POST(request: Request) {
       })
       .eq('id', businessId)
 
-    // Preapproval API doesn't return sandbox_init_point — convert manually for test tokens
-    let initPoint = data.sandbox_init_point || data.init_point
-    const isTestToken = accessToken.startsWith('TEST-') || accessToken.startsWith('APP_USR-')
-    if (isTestToken && initPoint && !initPoint.includes('sandbox')) {
-      initPoint = initPoint.replace('www.mercadopago.com', 'sandbox.mercadopago.com')
-        .replace('www.mercadopago.com.mx', 'sandbox.mercadopago.com.mx')
-    }
-    return Response.json({ init_point: initPoint })
+    // Preapproval with TEST- token is already in sandbox mode
+    // User must log in with a MercadoPago test buyer account at the init_point URL
+    return Response.json({ init_point: data.init_point })
   } catch (err) {
     console.error('MercadoPago create subscription error', { businessId, error: err })
     return Response.json({ error: 'Error al conectar con MercadoPago' }, { status: 500 })
