@@ -10,6 +10,7 @@ export type User = {
   first_name: string | null
   last_name: string | null
   phone: string | null
+  is_platform_admin: boolean
   created_at: string
 }
 
@@ -23,6 +24,12 @@ export type Business = {
   rules_text: string | null
   terms_text: string | null
   max_visits_per_day: number
+  status: 'active' | 'past_due' | 'suspended'
+  billing_cutoff_day: number | null
+  last_payment_date: string | null
+  subscription_id: string | null
+  subscription_status: string | null
+  billing_mode: 'manual' | 'subscription'
   created_at: string
 }
 
@@ -130,5 +137,15 @@ export type Ticket = {
   business_id: string
   image_url: string
   status: 'pending' | 'approved' | 'rejected'
+  created_at: string
+}
+
+export type Payment = {
+  id: string
+  business_id: string
+  amount: number
+  payment_date: string
+  method: 'cash' | 'transfer'
+  notes: string | null
   created_at: string
 }

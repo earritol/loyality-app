@@ -30,6 +30,17 @@ export async function createAdminRedemption(
   const isAdmin = await checkIsBusinessAdmin(user.id, businessId)
   if (!isAdmin) return { success: false, error: 'No tienes permisos para realizar esta acción' }
 
+  // Check business suspension status
+  const { data: bizStatus } = await supabase
+    .from('businesses')
+    .select('status')
+    .eq('id', businessId)
+    .single()
+
+  if (bizStatus?.status === 'suspended') {
+    return { success: false, error: 'Tu cuenta está suspendida. Contacta al administrador para reactivarla.' }
+  }
+
   // Fetch reward to get name (for response) and validate it belongs to business + is active
   const { data: reward } = await supabase
     .from('rewards')

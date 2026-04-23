@@ -4,6 +4,8 @@ import { Card } from '@/components/ui/card'
 import { BusinessLogo } from '@/components/ui/business-logo'
 import { MetricsGrid } from '@/components/admin/metrics-grid'
 import { RecentActivitySection } from '@/components/admin/recent-activity'
+import { BillingAlert } from '@/components/admin/billing-alert'
+import { BillingSection } from '@/components/admin/billing-section'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -29,6 +31,9 @@ export default async function AdminDashboardPage({
           </div>
         </div>
 
+        {/* Billing alert — only for past_due/suspended, dismissable, once per day */}
+        <BillingAlert status={business.status} billingCutoffDay={business.billing_cutoff_day} businessId={business.id} />
+
         {/* Helper text */}
         <p className="mt-4 text-xs text-gana-muted">
           Cada visita registrada acerca a tus clientes a una recompensa. Registra visitas para aumentar la lealtad.
@@ -36,12 +41,20 @@ export default async function AdminDashboardPage({
 
         {/* Quick links */}
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Link href={`/${slug}/admin/registrar`}>
-            <Card className="hover:border-gana-green/30 transition-colors cursor-pointer text-center py-4">
+          {business.status === 'suspended' ? (
+            <Card className="text-center py-4 opacity-50 cursor-not-allowed">
               <span className="text-2xl">📷</span>
               <p className="mt-1 text-sm font-semibold text-gana-text">Registrar visita</p>
+              <p className="text-xs text-gana-error mt-0.5">Suspendida</p>
             </Card>
-          </Link>
+          ) : (
+            <Link href={`/${slug}/admin/registrar`}>
+              <Card className="hover:border-gana-green/30 transition-colors cursor-pointer text-center py-4">
+                <span className="text-2xl">📷</span>
+                <p className="mt-1 text-sm font-semibold text-gana-text">Registrar visita</p>
+              </Card>
+            </Link>
+          )}
           <Link href={`/${slug}/admin/premios`}>
             <Card className="hover:border-gana-green/30 transition-colors cursor-pointer text-center py-4">
               <span className="text-2xl">🎁</span>
@@ -54,6 +67,11 @@ export default async function AdminDashboardPage({
               <p className="mt-1 text-sm font-semibold text-gana-text">Configurar</p>
             </Card>
           </Link>
+        </div>
+
+        {/* Billing */}
+        <div className="mt-6">
+          <BillingSection businessId={business.id} billingMode={business.billing_mode ?? 'manual'} subscriptionStatus={business.subscription_status} />
         </div>
 
         {/* Metrics */}

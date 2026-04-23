@@ -86,7 +86,10 @@ export default async function BusinessDetailPage({
         <Card className="mt-6 text-center">
           <p className="text-4xl font-bold text-gana-green">{available}</p>
           <p className="text-sm text-gana-text font-medium">
-            {available === 1 ? 'visita disponible' : 'visitas disponibles'}
+            {available === 1 ? 'visita acumulada' : 'visitas acumuladas'}
+          </p>
+          <p className="text-xs text-gana-muted mt-1">
+             Úsalas para canjear recompensas
           </p>
           <p className="text-xs text-gana-muted mt-1">
             {stats.totalVisits} visita{stats.totalVisits === 1 ? '' : 's'} en total

@@ -26,12 +26,16 @@ export async function recordVisitForBusiness(
     return { success: false, error: 'No tienes permisos para realizar esta acción' }
   }
 
-  // Check max_visits_per_day limit
+  // Check business status + max_visits_per_day
   const { data: business } = await supabase
     .from('businesses')
-    .select('max_visits_per_day')
+    .select('max_visits_per_day, status')
     .eq('id', businessId)
     .single()
+
+  if (business?.status === 'suspended') {
+    return { success: false, error: 'Tu cuenta está suspendida. Contacta al administrador para reactivarla.' }
+  }
 
   const maxPerDay = business?.max_visits_per_day ?? 1
 

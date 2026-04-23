@@ -1,15 +1,14 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const PROTECTED_PATHS = ['/inicio', '/perfil', '/local', '/ticket']
 const AUTH_PATHS = ['/', '/entrar', '/verificar']
-
-function isProtectedRoute(pathname: string): boolean {
-  return PROTECTED_PATHS.some((path) => pathname.startsWith(path))
-}
 
 function isAuthRoute(pathname: string): boolean {
   return AUTH_PATHS.includes(pathname)
+}
+
+function isPublicRoute(pathname: string): boolean {
+  return isAuthRoute(pathname) || pathname.startsWith('/api/')
 }
 
 export async function proxy(request: NextRequest) {
@@ -36,21 +35,22 @@ export async function proxy(request: NextRequest) {
     }
   )
 
+  // Always call getUser() to refresh the session token
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Redirect unauthenticated users away from protected routes
-  const isProtected = isProtectedRoute(request.nextUrl.pathname)
+  const pathname = request.nextUrl.pathname
 
-  if (!user && isProtected) {
+  // Redirect unauthenticated users away from non-public routes
+  if (!user && !isPublicRoute(pathname)) {
     const url = request.nextUrl.clone()
     url.pathname = '/entrar'
     return NextResponse.redirect(url)
   }
 
   // Redirect authenticated users away from auth/landing pages to dashboard
-  if (user && isAuthRoute(request.nextUrl.pathname)) {
+  if (user && isAuthRoute(pathname)) {
     const url = request.nextUrl.clone()
     url.pathname = '/inicio'
     return NextResponse.redirect(url)
