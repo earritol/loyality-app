@@ -48,7 +48,6 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         reason: 'GanaMas Club mensual',
         external_reference: businessId,
-        payer_email: user.email,
         auto_recurring: {
           frequency: 1,
           frequency_type: 'months',

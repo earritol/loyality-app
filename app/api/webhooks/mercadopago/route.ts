@@ -39,7 +39,7 @@ export async function POST(request: Request) {
 
       if (!res.ok) {
         console.error('Webhook: failed to fetch payment', { id: data.id, error: payment })
-        return Response.json({ error: 'Failed to verify' }, { status: 500 })
+        return Response.json({ received: true, error: 'Failed to verify payment' })
       }
 
       const businessId = payment.metadata?.business_id || payment.external_reference
@@ -139,7 +139,7 @@ export async function POST(request: Request) {
 
       if (!res.ok) {
         console.error('Webhook: failed to fetch subscription', { id: data.id, error: sub })
-        return Response.json({ error: 'Failed to verify' }, { status: 500 })
+        return Response.json({ received: true, error: 'Failed to verify subscription' })
       }
 
       const businessId = sub.external_reference
