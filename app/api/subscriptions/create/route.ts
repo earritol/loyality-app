@@ -76,7 +76,9 @@ export async function POST(request: Request) {
       })
       .eq('id', businessId)
 
-    return Response.json({ init_point: data.init_point })
+    // Prefer sandbox URL when using test credentials
+    const initPoint = data.sandbox_init_point || data.init_point
+    return Response.json({ init_point: initPoint })
   } catch (err) {
     console.error('MercadoPago create subscription error', { businessId, error: err })
     return Response.json({ error: 'Error al conectar con MercadoPago' }, { status: 500 })

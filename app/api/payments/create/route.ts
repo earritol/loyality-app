@@ -78,8 +78,10 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Error al crear el pago' }, { status: 500 })
     }
 
-    console.log('[MP Payment] Success! init_point:', data.init_point)
-    return Response.json({ init_point: data.init_point })
+    // Prefer sandbox URL when using test credentials
+    const initPoint = data.sandbox_init_point || data.init_point
+    console.log('[MP Payment] Success! init_point:', initPoint)
+    return Response.json({ init_point: initPoint })
   } catch (err) {
     console.error('MercadoPago create payment error', { businessId, error: err })
     return Response.json({ error: 'Error al conectar con MercadoPago' }, { status: 500 })
