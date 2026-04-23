@@ -44,32 +44,77 @@ export async function POST(request: Request) {
 
       const businessId = payment.metadata?.business_id || payment.external_reference
       if (!businessId) {
-        console.error('Webhook: no business_id in payment', { id: data.id })
+        console.error('[MP Webhook] No business_id in payment', { id: data.id, metadata: payment.metadata, external_reference: payment.external_reference })
         return Response.json({ received: true })
       }
 
+      // Fetch current business state for logging
+      const { data: currentBiz } = await supabase
+        .from('businesses')
+        .select('status, last_payment_date')
+        .eq('id', businessId)
+        .single()
+
+      console.log('[MP Webhook] Payment details:', {
+        paymentId: data.id,
+        businessId,
+        paymentStatus: payment.status,
+        amount: payment.transaction_amount,
+        currentBusinessStatus: currentBiz?.status ?? 'unknown',
+        currentLastPayment: currentBiz?.last_payment_date ?? 'none',
+      })
+
       if (payment.status === 'approved') {
-        await supabase.from('businesses').update({
+        const today = new Date().toISOString().split('T')[0]
+
+        // Reactivate business — works for active, past_due, or suspended
+        const { error: updateErr } = await supabase.from('businesses').update({
           status: 'active',
-          last_payment_date: new Date().toISOString().split('T')[0],
+          last_payment_date: today,
         }).eq('id', businessId)
 
-        // Also insert into payments table
-        await supabase.from('payments').insert({
+        if (updateErr) {
+          console.error('[MP Webhook] Failed to update business', { businessId, error: updateErr })
+        } else {
+          console.log('[MP Webhook] Business reactivated', {
+            businessId,
+            previousStatus: currentBiz?.status,
+            newStatus: 'active',
+            lastPaymentDate: today,
+          })
+        }
+
+        // Register payment in payments table
+        const { error: payErr } = await supabase.from('payments').insert({
           business_id: businessId,
           amount: payment.transaction_amount || 300,
-          payment_date: new Date().toISOString().split('T')[0],
+          payment_date: today,
           method: 'transfer',
           notes: `MercadoPago #${data.id}`,
         })
 
-        console.log('Webhook: payment approved', { businessId, paymentId: data.id })
+        if (payErr) {
+          console.error('[MP Webhook] Failed to insert payment record', { businessId, error: payErr })
+        } else {
+          console.log('[MP Webhook] Payment recorded', { businessId, amount: payment.transaction_amount })
+        }
       } else if (['rejected', 'cancelled', 'refunded'].includes(payment.status)) {
-        await supabase.from('businesses').update({
+        // Mark as past_due — do NOT suspend automatically
+        const { error: updateErr } = await supabase.from('businesses').update({
           status: 'past_due',
         }).eq('id', businessId)
 
-        console.log('Webhook: payment rejected/cancelled', { businessId, status: payment.status })
+        if (updateErr) {
+          console.error('[MP Webhook] Failed to update business to past_due', { businessId, error: updateErr })
+        }
+
+        console.log('[MP Webhook] Payment failed/cancelled', {
+          businessId,
+          paymentStatus: payment.status,
+          previousStatus: currentBiz?.status,
+        })
+      } else {
+        console.log('[MP Webhook] Payment status not handled:', { businessId, status: payment.status })
       }
     }
 
@@ -107,8 +152,9 @@ export async function POST(request: Request) {
       }
     }
   } catch (err) {
-    console.error('Webhook processing error', { type, id: data.id, error: err })
-    return Response.json({ error: 'Processing error' }, { status: 500 })
+    console.error('[MP Webhook] Processing error', { type, id: data.id, error: err })
+    // Always return 200 to MercadoPago to prevent retries
+    return Response.json({ received: true, error: 'Processing error' })
   }
 
   return Response.json({ received: true })

@@ -20,6 +20,17 @@ export async function POST(request: Request) {
     return Response.json({ error: 'No tienes permisos' }, { status: 403 })
   }
 
+  // Fetch business slug for back_urls
+  const { data: business } = await supabase
+    .from('businesses')
+    .select('slug')
+    .eq('id', businessId)
+    .single()
+
+  const slug = business?.slug ?? businessId
+  const domain = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const backUrl = `${domain}/${slug}/admin`
+
   const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN
   if (!accessToken) {
     console.error('MERCADOPAGO_ACCESS_TOKEN not configured')
@@ -37,9 +48,9 @@ export async function POST(request: Request) {
       metadata: { business_id: businessId },
       external_reference: businessId,
       back_urls: {
-        success: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/admin?payment=success`,
-        failure: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/admin?payment=error`,
-        pending: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/admin?payment=pending`,
+        success: `${backUrl}?payment=success`,
+        failure: `${backUrl}?payment=error`,
+        pending: `${backUrl}?payment=pending`,
       },
       auto_return: 'approved',
     }

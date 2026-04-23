@@ -20,6 +20,17 @@ export async function POST(request: Request) {
     return Response.json({ error: 'No tienes permisos' }, { status: 403 })
   }
 
+  // Fetch business slug for back_url
+  const { data: business } = await supabase
+    .from('businesses')
+    .select('slug')
+    .eq('id', businessId)
+    .single()
+
+  const slug = business?.slug ?? businessId
+  const domain = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const backUrl = `${domain}/${slug}/admin`
+
   const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN
   if (!accessToken) {
     console.error('MERCADOPAGO_ACCESS_TOKEN not configured')
@@ -42,7 +53,7 @@ export async function POST(request: Request) {
           transaction_amount: 300,
           currency_id: 'MXN',
         },
-        back_url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/admin?subscription=success`,
+        back_url: `${backUrl}?subscription=success`,
         status: 'pending',
       }),
     })
