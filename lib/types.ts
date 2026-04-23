@@ -30,6 +30,7 @@ export type Business = {
   subscription_id: string | null
   subscription_status: string | null
   billing_mode: 'manual' | 'subscription'
+  monthly_price: number
   created_at: string
 }
 

@@ -20,14 +20,15 @@ export async function POST(request: Request) {
     return Response.json({ error: 'No tienes permisos' }, { status: 403 })
   }
 
-  // Fetch business slug for back_urls
+  // Fetch business slug + price for back_urls
   const { data: business } = await supabase
     .from('businesses')
-    .select('slug')
+    .select('slug, monthly_price')
     .eq('id', businessId)
     .single()
 
   const slug = business?.slug ?? businessId
+  const price = business?.monthly_price ?? 300
   const domain = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
   const backUrl = `${domain}/${slug}/admin`
 
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
       items: [{
         title: 'GanaMas Club mensual',
         quantity: 1,
-        unit_price: 300,
+        unit_price: price,
         currency_id: 'MXN',
       }],
       metadata: { business_id: businessId },

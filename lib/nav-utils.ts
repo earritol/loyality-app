@@ -34,6 +34,7 @@ export function getNavItems(adminBusinesses: AdminBusiness[]): NavItem[] {
           { label: 'Registrar visita', href: `/${biz.slug}/admin/registrar` },
           { label: 'Premios', href: `/${biz.slug}/admin/premios` },
           { label: 'Configurar', href: `/${biz.slug}/admin/configurar` },
+          { label: 'Suscripción', href: `/${biz.slug}/admin/suscripcion` },
         ],
       })),
     })

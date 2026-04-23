@@ -5,7 +5,6 @@ import { BusinessLogo } from '@/components/ui/business-logo'
 import { MetricsGrid } from '@/components/admin/metrics-grid'
 import { RecentActivitySection } from '@/components/admin/recent-activity'
 import { BillingAlert } from '@/components/admin/billing-alert'
-import { BillingSection } from '@/components/admin/billing-section'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -69,9 +68,17 @@ export default async function AdminDashboardPage({
           </Link>
         </div>
 
-        {/* Billing */}
+        {/* Subscription link */}
         <div className="mt-6">
-          <BillingSection businessId={business.id} billingMode={business.billing_mode ?? 'manual'} subscriptionStatus={business.subscription_status} />
+          <Link href={`/${slug}/admin/suscripcion`}>
+            <Card className="hover:border-gana-green/30 transition-colors cursor-pointer flex items-center justify-between py-3 px-4">
+              <div>
+                <p className="text-sm font-semibold text-gana-text">💳 Mi suscripción</p>
+                <p className="text-xs text-gana-muted">Historial de pagos y opciones de facturación</p>
+              </div>
+              <span className="text-gana-muted">→</span>
+            </Card>
+          </Link>
         </div>
 
         {/* Metrics */}
