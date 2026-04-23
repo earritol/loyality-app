@@ -11,7 +11,7 @@ export const addPaymentSchema = z.object({
   businessId: z.string().uuid(),
   amount: z.number({ error: 'Debe ser un número' }).positive('El monto debe ser mayor a 0'),
   paymentDate: z.string().min(1, 'La fecha es obligatoria'),
-  method: z.enum(['cash', 'transfer'], { error: 'Método inválido' }),
+  method: z.enum(['cash', 'transfer', 'online'], { error: 'Método inválido' }),
   notes: z.string().max(500).optional().transform(v => v?.trim() || null),
 })
 

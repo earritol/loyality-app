@@ -84,19 +84,31 @@ export async function POST(request: Request) {
           })
         }
 
-        // Register payment in payments table
-        const { error: payErr } = await supabase.from('payments').insert({
-          business_id: businessId,
-          amount: payment.transaction_amount || 300,
-          payment_date: today,
-          method: 'transfer',
-          notes: `MercadoPago #${data.id}`,
-        })
+        // Register payment in payments table (deduplicate by MP payment ID)
+        const mpRef = `MercadoPago #${data.id}`
+        const { data: existingPay } = await supabase
+          .from('payments')
+          .select('id')
+          .eq('business_id', businessId)
+          .eq('notes', mpRef)
+          .maybeSingle()
 
-        if (payErr) {
-          console.error('[MP Webhook] Failed to insert payment record', { businessId, error: payErr })
+        if (existingPay) {
+          console.log('[MP Webhook] Payment already recorded, skipping insert', { businessId, mpRef })
         } else {
-          console.log('[MP Webhook] Payment recorded', { businessId, amount: payment.transaction_amount })
+          const { error: payErr } = await supabase.from('payments').insert({
+            business_id: businessId,
+            amount: payment.transaction_amount || 300,
+            payment_date: today,
+            method: 'online',
+            notes: mpRef,
+          })
+
+          if (payErr) {
+            console.error('[MP Webhook] Failed to insert payment record', { businessId, error: payErr })
+          } else {
+            console.log('[MP Webhook] Payment recorded', { businessId, amount: payment.transaction_amount })
+          }
         }
       } else if (['rejected', 'cancelled', 'refunded'].includes(payment.status)) {
         // Mark as past_due — do NOT suspend automatically

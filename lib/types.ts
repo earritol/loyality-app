@@ -146,7 +146,7 @@ export type Payment = {
   business_id: string
   amount: number
   payment_date: string
-  method: 'cash' | 'transfer'
+  method: 'cash' | 'transfer' | 'online'
   notes: string | null
   created_at: string
 }

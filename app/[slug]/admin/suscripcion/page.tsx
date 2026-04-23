@@ -87,7 +87,7 @@ export default async function SuscripcionPage({
                     <p className="text-sm font-medium text-gana-text">${p.amount} MXN</p>
                     <p className="text-xs text-gana-muted">
                       {new Date(p.payment_date + 'T00:00:00').toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}
-                      {p.method === 'cash' ? ' · Efectivo' : ' · Transferencia'}
+                      {p.method === 'cash' ? ' · Efectivo' : p.method === 'online' ? ' · En línea' : ' · Transferencia'}
                     </p>
                     {p.notes && <p className="text-xs text-gana-muted">{p.notes}</p>}
                   </div>
