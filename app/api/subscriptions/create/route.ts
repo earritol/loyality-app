@@ -39,6 +39,10 @@ export async function POST(request: Request) {
   }
 
   try {
+    // In production, use the real user email. In sandbox/test, use the test buyer email.
+    // TODO PROD: Remove MERCADOPAGO_TEST_PAYER_EMAIL env var and this fallback when going live.
+    const payerEmail = process.env.MERCADOPAGO_TEST_PAYER_EMAIL || user.email
+
     const res = await fetch('https://api.mercadopago.com/preapproval', {
       method: 'POST',
       headers: {
@@ -48,6 +52,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         reason: 'GanaMas Club mensual',
         external_reference: businessId,
+        payer_email: payerEmail,
         auto_recurring: {
           frequency: 1,
           frequency_type: 'months',
