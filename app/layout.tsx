@@ -35,7 +35,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#22C55E",
+  themeColor: "#1F2937",
 }
 
 // Inline script that runs before React hydration to set theme class.
