@@ -3,6 +3,9 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 const AUTH_PATHS = ['/', '/entrar', '/verificar']
 
+// 400 days in seconds — maximum allowed by browsers
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 400
+
 function isAuthRoute(pathname: string): boolean {
   return AUTH_PATHS.includes(pathname)
 }
@@ -28,7 +31,12 @@ export async function proxy(request: NextRequest) {
           )
           supabaseResponse = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            supabaseResponse.cookies.set(name, value, {
+              ...options,
+              maxAge: COOKIE_MAX_AGE,
+              sameSite: 'lax',
+              secure: process.env.NODE_ENV === 'production',
+            })
           )
         },
       },
