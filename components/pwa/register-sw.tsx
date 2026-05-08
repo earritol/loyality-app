@@ -9,7 +9,7 @@ import { useEffect } from 'react'
  */
 export function RegisterServiceWorker() {
   useEffect(() => {
-    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+    if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').catch(() => {
         // SW registration failed — app continues normally
       })
