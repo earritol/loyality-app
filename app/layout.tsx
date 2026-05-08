@@ -1,7 +1,12 @@
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import type { Metadata, Viewport } from "next"
+import { Inter, Geist } from "next/font/google"
 import { cookies } from "next/headers"
 import "./globals.css"
+import { RegisterServiceWorker } from "@/components/pwa/register-sw"
+import { InstallPrompt } from "@/components/pwa/install-prompt"
+import { cn } from "@/lib/utils"
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const inter = Inter({
   variable: "--font-inter",
@@ -11,10 +16,26 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "GANA — GanaMás Club",
   description: "Gana recompensas en tus negocios locales favoritos. Registra visitas, canjea premios.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "GanaMás",
+  },
   icons: {
     icon: "/favicon.png",
-    apple: "/favicon.png",
+    apple: "/icons/apple-touch-icon.png",
   },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#22C55E",
 }
 
 // Inline script that runs before React hydration to set theme class.
@@ -39,11 +60,15 @@ export default async function RootLayout({
   const serverDark = themeCookie === 'dark'
 
   return (
-    <html lang="es" className={`${inter.variable} h-full antialiased ${serverDark ? 'dark' : ''}`}>
+    <html lang="es" suppressHydrationWarning className={cn("h-full", "antialiased", inter.variable, serverDark ? 'dark' : '', "font-sans", geist.variable)}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        <RegisterServiceWorker />
+        <InstallPrompt />
+        {children}
+      </body>
     </html>
   )
 }

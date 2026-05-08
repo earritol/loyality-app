@@ -26,6 +26,11 @@ export function ProfileForm({ email, firstName, lastName, phone }: Props) {
         disabled
         className="opacity-60"
       />
+      {!email && (
+        <p className="text-xs text-gana-muted -mt-2">
+          <a href="/perfil" className="underline underline-offset-2">Agregar correo</a> para recibir notificaciones
+        </p>
+      )}
 
       <Input
         label="Nombre(s)"
@@ -51,6 +56,11 @@ export function ProfileForm({ email, firstName, lastName, phone }: Props) {
         placeholder="+521234567890"
         defaultValue={phone ?? ''}
       />
+      {!phone && (
+        <p className="text-xs text-gana-muted -mt-2">
+          Agrega tu teléfono para iniciar sesión más rápido en el futuro
+        </p>
+      )}
 
       {state.error && (
         <p className="text-xs text-gana-error">{state.error}</p>

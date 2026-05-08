@@ -5,6 +5,8 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { EmptyState } from '@/components/ui/empty-state'
 import { BusinessLogo } from '@/components/ui/business-logo'
+import { IncompleteProfileBanner } from '@/components/banners/incomplete-profile'
+import { AddPhoneBanner } from '@/components/banners/add-phone'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -14,8 +16,13 @@ export default async function DashboardPage() {
 
   if (!user) redirect('/entrar')
 
-  // Fetch visits and redemptions in parallel
-  const [visitsRes, redemptionsRes] = await Promise.all([
+  // Fetch user profile, visits and redemptions in parallel
+  const [profileRes, visitsRes, redemptionsRes] = await Promise.all([
+    supabase
+      .from('users')
+      .select('first_name, last_name, phone, email')
+      .eq('id', user.id)
+      .maybeSingle(),
     supabase
       .from('visits')
       .select('business_id, businesses(name, slug, logo_url)')
@@ -57,6 +64,20 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-gana-bg">
       <div className="max-w-lg mx-auto px-4 py-8">
         {/* replaced by Navbar — logo and signOut button removed */}
+
+        {/* Banners informativos */}
+        <div className="space-y-3 mb-6">
+          <IncompleteProfileBanner
+            firstName={profileRes.data?.first_name ?? null}
+            lastName={profileRes.data?.last_name ?? null}
+            phone={profileRes.data?.phone ?? null}
+            email={profileRes.data?.email ?? null}
+          />
+          <AddPhoneBanner
+            hasEmail={!!profileRes.data?.email}
+            hasPhone={!!profileRes.data?.phone}
+          />
+        </div>
 
         <Card className="text-center" style={{ backgroundColor: '#FFFFFF' }}>
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Tu código QR</p>
