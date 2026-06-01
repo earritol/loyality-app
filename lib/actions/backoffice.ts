@@ -15,7 +15,7 @@ export async function checkIsPlatformAdmin(userId: string): Promise<boolean> {
   return data?.is_platform_admin === true
 }
 
-export async function getAllBusinesses(): Promise<ActionResult<Business[]>> {
+export async function getAllBusinesses(): Promise<ActionResult<(Business & { ownerEmail?: string })[]>> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { success: false, error: 'No autenticado' }
@@ -25,7 +25,7 @@ export async function getAllBusinesses(): Promise<ActionResult<Business[]>> {
 
   const { data, error } = await supabase
     .from('businesses')
-    .select('*')
+    .select('*, business_admins(user_id, role, users(email))')
     .order('created_at', { ascending: false })
 
   if (error) {
@@ -33,7 +33,15 @@ export async function getAllBusinesses(): Promise<ActionResult<Business[]>> {
     return { success: false, error: 'Error al obtener los negocios' }
   }
 
-  return { success: true, data: data ?? [] }
+  // Attach owner email to each business
+  const enriched = (data ?? []).map((biz) => {
+    const admins = biz.business_admins as unknown as Array<{ user_id: string; role: string; users: { email: string } | null }> | null
+    const owner = admins?.find((a) => a.role === 'owner')
+    const { business_admins, ...rest } = biz
+    return { ...rest, ownerEmail: owner?.users?.email ?? undefined }
+  })
+
+  return { success: true, data: enriched }
 }
 
 export async function createBusinessWithOwner(
@@ -258,5 +266,82 @@ export async function updateBusinessFromBackoffice(
   }
 
   revalidatePath('/admin')
+  return { success: true }
+}
+
+
+export async function updateBusinessOwner(
+  _prev: ActionResult,
+  formData: FormData
+): Promise<ActionResult> {
+  const businessId = formData.get('businessId') as string
+  const ownerEmail = (formData.get('ownerEmail') as string)?.trim().toLowerCase()
+
+  if (!businessId || !ownerEmail) {
+    return { success: false, error: 'Negocio y email del dueño son requeridos' }
+  }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { success: false, error: 'No autenticado' }
+
+  const isAdmin = await checkIsPlatformAdmin(user.id)
+  if (!isAdmin) return { success: false, error: 'No tienes permisos para realizar esta acción' }
+
+  // Find or create the new owner user
+  let ownerId: string
+  const { data: existingUser } = await supabase
+    .from('users')
+    .select('id')
+    .eq('email', ownerEmail)
+    .maybeSingle()
+
+  if (existingUser) {
+    ownerId = existingUser.id
+  } else {
+    const newId = crypto.randomUUID()
+    const { error: userError } = await supabase
+      .from('users')
+      .insert({ id: newId, email: ownerEmail, first_name: null, last_name: null })
+    if (userError) {
+      console.error('updateBusinessOwner user error', { userId: user.id, error: userError })
+      return { success: false, error: 'Error al crear el usuario dueño' }
+    }
+    ownerId = newId
+  }
+
+  // Remove current owner(s)
+  const { error: deleteError } = await supabase
+    .from('business_admins')
+    .delete()
+    .eq('business_id', businessId)
+    .eq('role', 'owner')
+
+  if (deleteError) {
+    console.error('updateBusinessOwner delete error', { userId: user.id, error: deleteError })
+    return { success: false, error: 'Error al remover el dueño anterior' }
+  }
+
+  // Insert new owner
+  const { error: insertError } = await supabase
+    .from('business_admins')
+    .insert({ business_id: businessId, user_id: ownerId, role: 'owner' })
+
+  if (insertError) {
+    if (insertError.code === '23505') {
+      // User is already an admin, just update their role
+      await supabase
+        .from('business_admins')
+        .update({ role: 'owner' })
+        .eq('business_id', businessId)
+        .eq('user_id', ownerId)
+    } else {
+      console.error('updateBusinessOwner insert error', { userId: user.id, error: insertError })
+      return { success: false, error: 'Error al asignar el nuevo dueño' }
+    }
+  }
+
+  revalidatePath('/admin')
+  revalidatePath('/admin/negocios')
   return { success: true }
 }

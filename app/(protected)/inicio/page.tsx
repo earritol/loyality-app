@@ -102,7 +102,7 @@ export default async function DashboardPage() {
               />
             </div>
           ) : (
-            <div className="mt-4 space-y-3">
+            <div className="mt-4 flex flex-col gap-4">
               {businessList.map((biz) => (
                 <Link key={biz.id} href={`/local/${biz.slug ?? biz.id}`}>
                   <Card className="flex items-center gap-3 hover:border-gana-green/30 transition-colors cursor-pointer">

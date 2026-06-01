@@ -2,9 +2,10 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { checkIsPlatformAdmin } from '@/lib/actions/backoffice'
 import { Navbar } from '@/components/navbar'
+import { AdminSidebar } from '@/components/admin/admin-sidebar'
 import Link from 'next/link'
 
-export default async function BackofficeLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode
@@ -36,7 +37,12 @@ export default async function BackofficeLayout({
   return (
     <>
       <Navbar />
-      {children}
+      <div className="flex min-h-[calc(100vh-56px)]">
+        <AdminSidebar />
+        <main className="flex-1 p-6 bg-gana-bg overflow-auto">
+          {children}
+        </main>
+      </div>
     </>
   )
 }

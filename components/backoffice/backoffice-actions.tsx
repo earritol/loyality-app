@@ -10,7 +10,7 @@ import type { ActionResult, Business } from '@/lib/types'
 const initial: ActionResult = { success: false }
 
 type Props = {
-  business: Business
+  business: Business & { ownerEmail?: string }
   currentStatus: string
 }
 

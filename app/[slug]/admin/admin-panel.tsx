@@ -111,7 +111,7 @@ export function AdminPanel({ business, rewards }: Props) {
           </div>
         ) : (
           <div className="mt-6 space-y-4">
-            <Card>
+            <Card className="px-4">
               <h2 className="font-bold text-gana-text">📷 Escanear QR</h2>
               <p className="mt-1 text-sm text-gana-muted">Escanea el código QR del cliente para registrar su visita.</p>
               <div className="mt-4">
@@ -132,7 +132,7 @@ export function AdminPanel({ business, rewards }: Props) {
               </div>
             </Card>
 
-            <Card>
+            <Card className="px-4">
               <h2 className="font-bold text-gana-text">🔍 Buscar cliente</h2>
               <p className="mt-1 text-sm text-gana-muted">Busca por email o teléfono. Si no existe, puedes registrarlo al instante.</p>
               <div className="mt-4">
