@@ -76,7 +76,7 @@ export default async function AdminDashboardPage({
                 <span className="text-xl">💳</span>
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-gana-text">Mi suscripción</p>
-                  <p className="text-xs text-gana-muted">Historial de pagos y facturación</p>
+                  <p className="text-xs text-gana-muted">Pagos e historial</p>
                 </div>
                 <span className="text-xs text-gana-green font-medium">Ver →</span>
               </div>
