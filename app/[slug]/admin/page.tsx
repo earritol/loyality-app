@@ -69,14 +69,17 @@ export default async function AdminDashboardPage({
         </div>
 
         {/* Subscription link */}
-        <div className="mt-6">
+        <div className="mt-4">
           <Link href={`/${slug}/admin/suscripcion`}>
-            <Card className="hover:border-gana-green/30 transition-colors cursor-pointer flex items-center justify-between py-3 px-4">
-              <div>
-                <p className="text-sm font-semibold text-gana-text">💳 Mi suscripción</p>
-                <p className="text-xs text-gana-muted">Historial de pagos y opciones de facturación</p>
+            <Card className="hover:border-gana-green/30 transition-colors cursor-pointer py-3">
+              <div className="flex items-center gap-3">
+                <span className="text-xl">💳</span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-gana-text">Mi suscripción</p>
+                  <p className="text-xs text-gana-muted">Historial de pagos y facturación</p>
+                </div>
+                <span className="text-xs text-gana-green font-medium">Ver →</span>
               </div>
-              <span className="text-gana-muted">→</span>
             </Card>
           </Link>
         </div>
