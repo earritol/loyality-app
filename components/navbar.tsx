@@ -10,7 +10,7 @@ export async function Navbar() {
 
   const { data: profile } = await supabase
     .from('users')
-    .select('first_name')
+    .select('first_name, is_platform_admin')
     .eq('id', user.id)
     .single()
 
@@ -33,6 +33,7 @@ export async function Navbar() {
         id: user.id,
         email: user.email ?? '',
         firstName: profile?.first_name ?? null,
+        isPlatformAdmin: profile?.is_platform_admin ?? false,
       }}
       adminBusinesses={adminBusinesses}
     />

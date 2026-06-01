@@ -17,7 +17,7 @@ export type AdminBusiness = {
   slug: string
 }
 
-export function getNavItems(adminBusinesses: AdminBusiness[]): NavItem[] {
+export function getNavItems(adminBusinesses: AdminBusiness[], isPlatformAdmin = false): NavItem[] {
   const items: NavItem[] = [
     { label: 'Inicio', href: '/inicio' },
     { label: 'Perfil', href: '/perfil' },
@@ -40,12 +40,17 @@ export function getNavItems(adminBusinesses: AdminBusiness[]): NavItem[] {
     })
   }
 
+  if (isPlatformAdmin) {
+    items.push({ label: 'Backoffice', href: '/admin' })
+  }
+
   return items
 }
 
 export function isActiveRoute(pathname: string, href: string): boolean {
   if (href === '/inicio') return pathname === '/inicio'
   if (href === '/perfil') return pathname === '/perfil'
+  if (href === '/admin') return pathname.startsWith('/admin')
   if (href === '#') return /^\/[^/]+\/admin/.test(pathname)
   return pathname.startsWith(href)
 }

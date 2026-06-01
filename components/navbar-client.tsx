@@ -10,7 +10,7 @@ import type { AdminBusiness, NavItem } from '@/lib/nav-utils'
 import { ThemeToggle } from '@/components/theme-toggle'
 
 type Props = {
-  user: { id: string; email: string; firstName: string | null }
+  user: { id: string; email: string; firstName: string | null; isPlatformAdmin: boolean }
   adminBusinesses: AdminBusiness[]
 }
 
@@ -20,7 +20,7 @@ export function NavbarClient({ user, adminBusinesses }: Props) {
   const [bizMenuOpen, setBizMenuOpen] = useState(false)
   const [openBizIndex, setOpenBizIndex] = useState<number | null>(0)
 
-  const navItems = getNavItems(adminBusinesses)
+  const navItems = getNavItems(adminBusinesses, user.isPlatformAdmin)
   const displayName = user.firstName || user.email
 
   useEffect(() => {
